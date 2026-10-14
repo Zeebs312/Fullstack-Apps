@@ -2,97 +2,118 @@
 
 import { useState } from "react";
 import { LearningEntry, LearningEntrySchema } from '@repo/shared-types';
-import { cn } from "ui/lib/utils";
 import Image from "next/image";
-import { X } from "lucide-react";
+import DeepDiveOverlay, { CardConfig } from "@/components/DeepDiveView";
 
-// Mock data validated against our shared Zod schema
 const initialEntries: LearningEntry[] = [
     {
         id: '1',
         title: 'Configuring pnpm Workspaces & Monorepos',
         category: 'DevOps',
-        content: 'Learned how to properly link packages using workspace:* protocols and debug workspace resolution errors when package.json filenames matter.',
+        content: 'Learned how to properly link packages using workspace:* protocols.',
         datePublished: '2026-10-04',
-    },
-    {
-        id: '2',
-        title: 'Next.js 16 App Router & Server Components',
-        category: 'Frontend',
-        content: 'Exploring server-first architecture and shared Zod validation schemas across fullstack monorepos.',
-        datePublished: '2026-10-03',
     },
 ];
 
-// Validate entries at runtime to ensure data integrity
 const validatedEntries = initialEntries.map((entry) => LearningEntrySchema.parse(entry));
 
 type CardType = "rabies" | "castrato" | "rat" | "caduceus" | null;
-
-interface CardConfig {
-    type: CardType;
-    title: string;
-    description: string;
-    image: string;
-    isCustomContent?: boolean;
-}
 
 const cardsConfig: CardConfig[] = [
     {
         type: "rabies",
         title: "Rabies",
-        description: "The historical progression, behavioral impact, and pathology of the rabies virus.",
-        image: "/rabies.jpg", 
+        description: "The historical progression and pathology of the virus.",
+        image: "/rabies.jpg",
         isCustomContent: true,
     },
     {
         type: "castrato",
         title: "The Castrato",
         image: "/castrato.jpg",
-        description: "Explore the fascinating and haunting history of opera's legendary soprano-range male vocalists.",
+        description: "Explore the history of opera's legendary soprano-range male vocalists.",
+        sections: [
+            {
+                paragraph: "The story of the Castrati is one of the most remarkable and disturbing in musical history. From the 16th to the 19th century, thousands of boys were castrated before puberty to preserve their high vocal registers.",
+                image: "/castrato.jpg"
+            },
+            {
+                paragraph: "In the Baroque era, they became the superstars of opera, commanding enormous fees and adulation. Their voices were described as otherworldly, capable of extraordinary breath control.",
+                image: "/castrato.jpg"
+            },
+            {
+                paragraph: "Rigorous daily training included hours of vocal exercises, studying ornamentation, and mastering dramatic stage presence alongside conservatory tutors.",
+                image: "/castrato.jpg"
+            },
+            {
+                paragraph: "As musical tastes shifted toward romanticism and realism, public sentiment turned against the practice, leading to official bans and the eventual end of the era.",
+                image: "/castrato.jpg"
+            }
+        ]
     },
     {
         type: "rat",
         title: "Rat Evolution",
         image: "/rats.jpg",
-        description: "An evolutionary deep dive into how rodents adapted to become one of the most successful species on Earth.",
+        description: "An evolutionary deep dive into rodent adaptation.",
+        sections: [
+            {
+                paragraph: "Rodents represent nearly half of all mammalian species, originating millions of years ago and outliving many larger prehistoric competitors.",
+                image: "/rats.jpg"
+            },
+            {
+                paragraph: "Their highly adaptable jaw structure and constantly growing incisors allow them to consume almost any food source available in human environments.",
+                image: "/rats.jpg"
+            },
+            {
+                paragraph: "Living alongside human settlements provided rats with endless shelter and food security, fueling their global expansion.",
+                image: "/rats.jpg"
+            }
+        ]
     },
     {
         type: "caduceus",
-        title: "Caduceus",
+        title: "The Caduceus Symbolism",
         image: "/caduceus.jpg",
-        description: "isjapslkf",
+        description: "Unpacking the historical confusion between Hermes staff and the Rod of Asclepius.",
+        sections: [
+            {
+                paragraph: "The staff of Hermes features two intertwined serpents and wings, originally symbolizing heraldry, commerce, and negotiation.",
+                image: "/caduceus.jpg"
+            },
+            {
+                paragraph: "Confusion arose in the early 20th century when the U.S. Army Medical Corps mistakenly adopted the Caduceus instead of the true medical emblem.",
+                image: "/caduceus.jpg"
+            },
+            {
+                paragraph: "The authentic symbol of medicine is the Rod of Asclepius - a single snake wrapped around a rough wooden staff.",
+                image: "/caduceus.jpg"
+            },
+            {
+                paragraph: "Despite historical corrections by historians, the Caduceus remains deeply entrenched in commercial medical branding worldwide.",
+                image: "/caduceus.jpg"
+            }
+        ]
     },
 ];
 
 export default function DailyLearningPage() {
     const [activeCard, setActiveCard] = useState<CardType>(null);
 
+    const activeCardConfig = cardsConfig.find(c => c.type === activeCard);
+
     return (
         <div className="min-h-screen w-full flex flex-col">
-
-            {/* Edge-to-Edge Hero Banner */}
+            {/* Hero Section */}
             <div className="relative w-full h-64 md:h-180 overflow-hidden shadow-lg">
-                <Image
-                    src="/banner.jpg"
-                    alt="Daily Learning Banner"
-                    fill
-                    priority
-                    className="object-cover"
-                />
-
-                {/* Gradient Overlay & Title Content */}
+                <Image src="/banner.jpg" alt="Banner" fill priority className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6 md:p-10">
-                    <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
-                        Down the Burrow
-                    </h1>
-                    <p className="text-zinc-200 mt-2 max-w-2xl text-base md:text-lg">
-                        Where a simple question turns into a 3 AM obsession
-                    </p>
+                    <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight">Down the Burrow</h1>
+                    <p className="text-zinc-200 mt-2 max-w-2xl text-base md:text-lg">Where a simple question turns into a 3 AM obsession</p>
                 </div>
             </div>
 
-            {/* Masonry Column Container */}
+            {/* Masonry Column Grid */}
             <div className="w-full px-4 md:px-8 py-8">
                 <div className="columns-1 md:columns-3 gap-6 w-full space-y-6">
                     {cardsConfig.map((card) => (
@@ -113,72 +134,14 @@ export default function DailyLearningPage() {
                 </div>
             </div>
 
-            {/* Interactive Modal Popup */}
-            {activeCard && (
-                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-card text-card-foreground w-full max-w-2xl p-6 md:p-8 rounded-2xl border shadow-2xl relative flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-200">
-
-                        {/* Close Button */}
-                        <button
-                            onClick={() => setActiveCard(null)}
-                            className="absolute top-6 right-6 p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
-
-                        {/* Modal Content Based on Active Card */}
-                        {activeCard === "rabies" && (
-                            <>
-                                <h2 className="text-2xl font-bold">Rabies</h2>
-                                <p className="text-sm text-muted-foreground">Loaded securely from `@repo/shared-types` schema.</p>
-                                <div className="flex flex-col gap-3 max-h-60 overflow-y-auto pr-1">
-                                    {validatedEntries.map((entry) => (
-                                        <div key={entry.id} className="p-4 rounded-lg border bg-background flex flex-col gap-1">
-                                            <div className="flex justify-between items-center text-xs text-muted-foreground">
-                                                <span className="px-2 py-0.5 rounded bg-primary/10 text-primary font-medium">{entry.category}</span>
-                                                <span>{entry.datePublished}</span>
-                                            </div>
-                                            <h3 className="font-semibold text-base">{entry.title}</h3>
-                                            <p className="text-sm text-muted-foreground">{entry.content}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-
-                        {activeCard === "castrato" && (
-                            <>
-                                <h2 className="text-2xl font-bold">The Castrato</h2>
-                                <p className="text-sm text-muted-foreground">Explore the fascinating and haunting history of opera's legendary soprano-range male vocalists.</p>
-                                <div className="h-48 rounded border border-dashed flex items-center justify-center text-sm text-muted-foreground">
-                                    Deep dive article and notes go here.
-                                </div>
-                            </>
-                        )}
-
-                        {activeCard === "rat" && (
-                            <>
-                                <h2 className="text-2xl font-bold">Rat Evolution</h2>
-                                <p className="text-sm text-muted-foreground">An evolutionary deep dive into how rodents adapted to become one of the most successful species on Earth.</p>
-                                <div className="h-48 rounded border border-dashed flex items-center justify-center text-sm text-muted-foreground">
-                                    Deep dive article and notes go here.
-                                </div>
-                            </>
-                        )}
-
-                        <div className="flex justify-end gap-3 pt-2">
-                            <button
-                                onClick={() => setActiveCard(null)}
-                                className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity"
-                            >
-                                Close
-                            </button>
-                        </div>
-
-                    </div>
-                </div>
+            {/* Interactive Expanding Overlay Component */}
+            {activeCard && activeCardConfig && (
+                <DeepDiveOverlay
+                    card={activeCardConfig}
+                    validatedEntries={validatedEntries}
+                    onClose={() => setActiveCard(null)}
+                />
             )}
-
         </div>
     );
 }
