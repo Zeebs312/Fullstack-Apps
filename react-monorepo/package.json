@@ -13,7 +13,16 @@
     "build:docs": "pnpm --filter docs build",
     "ui": "cd packages/ui && pnpm dlx shadcn@latest add"
   },
-  "keywords": [ "monorepo", "react", "next.js", "tailwindcss", "shadcn-ui" ],
+  "keywords": [
+    "monorepo",
+    "react",
+    "next.js",
+    "tailwindcss",
+    "shadcn-ui"
+  ],
   "author": "Sanjay Tomar",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "framer-motion": "^14.3.0"
+  }
 }

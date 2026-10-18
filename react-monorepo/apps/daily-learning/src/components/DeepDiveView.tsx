@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { cn } from "ui/lib/utils";
 import { LearningEntry } from "@repo/shared-types";
 
@@ -29,12 +30,26 @@ interface DeepDiveViewProps {
 }
 
 export default function DeepDiveView({ card, validatedEntries, onClose }: DeepDiveViewProps) {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [scrollProgress, setScrollProgress] = useState(0);
+    const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+    // Lock body scroll and set up ESC key listener
     useEffect(() => {
         document.body.style.overflow = "hidden";
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                onClose();
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+
         return () => {
             document.body.style.overflow = "unset";
+            window.removeEventListener("keydown", handleKeyDown);
         };
-    }, []);
+    }, [onClose]);
 
     const slides = (() => {
         if (card.isCustomContent) {
@@ -52,49 +67,109 @@ export default function DeepDiveView({ card, validatedEntries, onClose }: DeepDi
         return [{ paragraph: card.description, image: card.image }];
     })();
 
+    // Handle scroll progress calculation manually
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const target = e.currentTarget;
+        const totalHeight = target.scrollHeight - target.clientHeight;
+        if (totalHeight > 0) {
+            const progress = target.scrollTop / totalHeight;
+            setScrollProgress(progress);
+        }
+    };
+
+    // Scroll trigger observer to switch active text content per slide image
+    useEffect(() => {
+        const observers: IntersectionObserver[] = [];
+
+        imageRefs.current.forEach((el, index) => {
+            if (!el) return;
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            setActiveIndex(index);
+                        }
+                    });
+                },
+                { threshold: 0.5 }
+            );
+            observer.observe(el);
+            observers.push(observer);
+        });
+
+        return () => {
+            observers.forEach((obs) => obs.disconnect());
+        };
+    }, [slides.length]);
+
+    const currentSlide = slides[activeIndex] || slides[0];
+
     return (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md overflow-y-auto">
-            {/* Clickable Backdrop Area Covering Everything */}
+        <div
+            onScroll={handleScroll}
+            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-2xl overflow-y-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]"
+        >
+            {/* Clickable Backdrop Area */}
             <div className="fixed inset-0" onClick={onClose} />
 
-            {/* Scrollable Content Wrapper */}
-            <div className="relative z-10 min-h-full w-full flex justify-center p-4 lg:p-12 pointer-events-none">
-                <div className="w-full max-w-4xl flex flex-col gap-6 pointer-events-auto my-auto">
-                    {slides.map((slide, index) => (
-                        <div
-                            key={index}
-                            className={cn(
-                                "bg-card text-card-foreground border shadow-2xl flex flex-col lg:flex-row overflow-hidden rounded-none",
-                                "w-full min-h-[420px]"
-                            )}
-                        >
-                            <div className="w-full lg:w-1/2 p-6 md:p-10 flex flex-col justify-between">
-                                <div className="flex flex-col gap-4">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                            {card.title} {slides.length > 1 && "- Part " + (index + 1) + " of " + slides.length}
-                                        </span>
-                                        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-                                            {slide.title || card.title}
-                                        </h2>
-                                    </div>
+            {/* Main Scrollytelling Container */}
+            <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row min-h-full pointer-events-none">
 
-                                    {slide.category && (
-                                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                            <span className="px-2.5 py-1 rounded bg-primary/10 text-primary font-medium">
-                                                {slide.category}
-                                            </span>
-                                            {slide.datePublished && <span>{slide.datePublished}</span>}
-                                        </div>
-                                    )}
-
-                                    <p className="text-base md:text-lg leading-relaxed text-foreground/90 font-normal">
-                                        {slide.paragraph}
-                                    </p>
-                                </div>
+                {/* Left Side: Sticky Text Pane with Animated Crossfade */}
+                <div className="w-full lg:w-5/12 lg:sticky lg:top-0 lg:h-screen flex flex-col justify-center p-8 md:p-12 lg:p-16 pointer-events-auto z-20">
+                    <motion.div
+                        key={activeIndex}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
+                        className="flex flex-col gap-6"
+                    >
+                        <div className="flex flex-col gap-3">
+                            <div className="flex items-center gap-3">
+                                <span className="text-xs font-mono uppercase tracking-widest text-zinc-400">
+                                    {card.title}
+                                </span>
+                                {slides.length > 1 && (
+                                    <span className="text-xs font-mono text-zinc-500">
+                                        {"[" + (activeIndex + 1).toString().padStart(2, "0") + " / " + slides.length.toString().padStart(2, "0") + "]"}
+                                    </span>
+                                )}
                             </div>
+                            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-[1.1]">
+                                {currentSlide.title || card.title}
+                            </h2>
+                        </div>
 
-                            <div className="hidden lg:block lg:w-1/2 relative bg-muted min-h-[300px]">
+                        {currentSlide.category && (
+                            <div className="flex items-center gap-3 text-xs text-zinc-400">
+                                <span className="px-3 py-1 rounded-none bg-white/10 text-white font-medium tracking-wide">
+                                    {currentSlide.category}
+                                </span>
+                                {currentSlide.datePublished && <span className="text-zinc-400">{currentSlide.datePublished}</span>}
+                            </div>
+                        )}
+
+                        <p className="text-lg md:text-xl leading-relaxed text-zinc-300 font-normal">
+                            {currentSlide.paragraph}
+                        </p>
+                    </motion.div>
+                </div>
+
+                {/* Right Side Wrapper: Scrolling Images + Centered Vertical Progress Bar on the Right */}
+                <div className="w-full lg:w-7/12 flex items-start p-8 md:p-12 lg:p-16 pointer-events-auto gap-6">
+
+                    {/* Scrolling Image Column */}
+                    <div className="w-full flex flex-col gap-24">
+                        {slides.map((slide, index) => (
+                            <motion.div
+                                key={index}
+                                ref={(el) => { imageRefs.current[index] = el; }}
+                                initial={{ opacity: 0, y: 40 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, margin: "-50px" }}
+                                transition={{ duration: 0.6, ease: "easeOut" }}
+                                className="relative w-full h-[65vh] lg:h-[75vh] bg-zinc-900/50 shadow-2xl overflow-hidden shrink-0"
+                            >
                                 <Image
                                     src={slide.image}
                                     alt={slide.title || card.title}
@@ -102,10 +177,21 @@ export default function DeepDiveView({ card, validatedEntries, onClose }: DeepDi
                                     priority={index === 0}
                                     className="object-cover"
                                 />
-                            </div>
-                        </div>
-                    ))}
+                                <div className="absolute inset-0 ring-1 ring-inset ring-white/10 pointer-events-none" />
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    {/* Vertically Centered Sticky Progress Bar Track on the Right Side */}
+                    <div className="sticky top-[45vh] hidden lg:flex flex-col items-center h-48 w-1 bg-zinc-800/80 rounded-full shrink-0">
+                        <div
+                            className="w-full bg-white rounded-full transition-all duration-75 ease-out shadow-[0_0_12px_rgba(255,255,255,0.7)]"
+                            style={{ height: `${scrollProgress * 100}%` }}
+                        />
+                    </div>
+
                 </div>
+
             </div>
         </div>
     );
