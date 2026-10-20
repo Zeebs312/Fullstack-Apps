@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
@@ -15,7 +15,7 @@ export interface DeepDiveSection {
 }
 
 export interface CardConfig {
-    type: "rabies" | "castrato" | "rat" | "caduceus" | null;
+    type: "rabies" | "castrato" | "rat" | "caduceus" | "gravity" | "windchimes" | null;
     title: string;
     description: string;
     image: string;
@@ -51,6 +51,7 @@ export default function DeepDiveView({ card, validatedEntries, onClose }: DeepDi
         };
     }, [onClose]);
 
+    // Slide generator including placeholders for Gravity Rooms and Windchimes
     const slides = (() => {
         if (card.isCustomContent) {
             return validatedEntries.map((entry) => ({
@@ -64,7 +65,62 @@ export default function DeepDiveView({ card, validatedEntries, onClose }: DeepDi
         if (card.sections && card.sections.length > 0) {
             return card.sections;
         }
-        return [{ paragraph: card.description, image: card.image }];
+
+        // Placeholder content mappings for new topics (easily editable later)
+        const lowerTitle = card.title.toLowerCase();
+        if (lowerTitle.includes("gravity") || card.type === "gravity") {
+            return [
+                {
+                    title: "Principles of Artificial Gravity",
+                    category: "Physics & Engineering",
+                    datePublished: "2026",
+                    paragraph: "Placeholder text for gravity rooms: Explaining how centripetal acceleration, rotation speeds, and radius dimensions simulate earth-like gravitational forces in enclosed space environments. [Text to be updated later]",
+                    image: card.image,
+                },
+                {
+                    title: "Centrifugal Force Mechanics",
+                    category: "Structural Design",
+                    datePublished: "2026",
+                    paragraph: "Placeholder text for rotational dynamics: How the continuous curvature of a cylindrical or toroidal habitat pushes occupants toward the outer hull, creating a stable floor sensation. [Text to be updated later]",
+                    image: card.image,
+                },
+                {
+                    title: "Coriolis Effects & Human Adaptation",
+                    category: "Human Factors",
+                    datePublished: "2026",
+                    paragraph: "Placeholder text for physiological impacts: Managing inner ear adjustments, fluid shifts, and rotational side effects during rapid movement inside artificial gravity structures. [Text to be updated later]",
+                    image: card.image,
+                }
+            ];
+        }
+
+        if (lowerTitle.includes("windchime") || card.type === "windchimes") {
+            return [
+                {
+                    title: "Acoustic Resonance & Materials",
+                    category: "Acoustic Design",
+                    datePublished: "2026",
+                    paragraph: "Placeholder text for windchimes: Exploring how varying tube lengths, wall thickness, and alloy compositions dictate fundamental frequencies and harmonic overtones. [Text to be updated later]",
+                    image: card.image,
+                },
+                {
+                    title: "Kinetic Energy & Clapper Dynamics",
+                    category: "Mechanical Response",
+                    datePublished: "2026",
+                    paragraph: "Placeholder text for wind capture: How suspended center clappers and wind-catching sails translate unpredictable air currents into rhythmic melodic sequences. [Text to be updated later]",
+                    image: card.image,
+                },
+                {
+                    title: "Pentatonic Tuning & Soundscapes",
+                    category: "Musical Architecture",
+                    datePublished: "2026",
+                    paragraph: "Placeholder text for scale tuning: Designing sonic intervals that eliminate dissonant clashing to generate calming, ambient outdoor auditory environments. [Text to be updated later]",
+                    image: card.image,
+                }
+            ];
+        }
+
+        return [{ paragraph: card.description, image: card.image, title: card.title }];
     })();
 
     // Handle scroll progress calculation manually
@@ -155,8 +211,8 @@ export default function DeepDiveView({ card, validatedEntries, onClose }: DeepDi
                     </motion.div>
                 </div>
 
-                {/* Right Side Wrapper: Scrolling Images + Centered Vertical Progress Bar on the Right */}
-                <div className="w-full lg:w-7/12 flex items-start p-8 md:p-12 lg:p-16 pointer-events-auto gap-6">
+                {/* Right Side Wrapper: Scrolling Images + Centered Vertical Progress Bar */}
+                <div className="w-full lg:w-7/12 flex items-start p-8 md:p-12 lg:p-16 pointer-events-auto gap-4">
 
                     {/* Scrolling Image Column */}
                     <div className="w-full flex flex-col gap-24">
@@ -182,8 +238,8 @@ export default function DeepDiveView({ card, validatedEntries, onClose }: DeepDi
                         ))}
                     </div>
 
-                    {/* Vertically Centered Sticky Progress Bar Track on the Right Side */}
-                    <div className="sticky top-[45vh] hidden lg:flex flex-col items-center h-48 w-1 bg-zinc-800/80 rounded-full shrink-0">
+                    {/* Vertically Centered Sticky Progress Bar Track */}
+                    <div className="sticky top-[45vh] hidden lg:flex flex-col items-center h-48 w-1 bg-zinc-800/80 rounded-full shrink-0 ml-6">
                         <div
                             className="w-full bg-white rounded-full transition-all duration-75 ease-out shadow-[0_0_12px_rgba(255,255,255,0.7)]"
                             style={{ height: `${scrollProgress * 100}%` }}

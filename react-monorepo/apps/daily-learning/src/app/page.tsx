@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { LearningEntry, LearningEntrySchema } from '@repo/shared-types';
 import Image from "next/image";
 import DeepDiveOverlay, { CardConfig } from "@/components/DeepDiveView";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 const initialEntries: LearningEntry[] = [
     {
@@ -17,7 +18,7 @@ const initialEntries: LearningEntry[] = [
 
 const validatedEntries = initialEntries.map((entry) => LearningEntrySchema.parse(entry));
 
-type CardType = "rabies" | "castrato" | "rat" | "caduceus" | null;
+type CardType = "rabies" | "castrato" | "rat" | "caduceus" | "gravity" | "windchimes" | null;
 
 const cardsConfig: CardConfig[] = [
     {
@@ -95,46 +96,160 @@ const cardsConfig: CardConfig[] = [
             }
         ]
     },
+    {
+        type: "gravity",
+        title: "Gravity Rooms",
+        description: "Exploring the mechanics of artificial gravity and rotational environments.",
+        image: "/gravity.jpg",
+        sections: [
+            {
+                paragraph: "The staff of Hermes features two intertwined serpents and wings, originally symbolizing heraldry, commerce, and negotiation.",
+                image: "/caduceus.jpg"
+            },
+            {
+                paragraph: "Confusion arose in the early 20th century when the U.S. Army Medical Corps mistakenly adopted the Caduceus instead of the true medical emblem.",
+                image: "/caduceus.jpg"
+            },
+            {
+                paragraph: "The authentic symbol of medicine is the Rod of Asclepius - a single snake wrapped around a rough wooden staff.",
+                image: "/caduceus.jpg"
+            },
+            {
+                paragraph: "Despite historical corrections by historians, the Caduceus remains deeply entrenched in commercial medical branding worldwide.",
+                image: "/caduceus.jpg"
+            }
+        ]
+    },
+    {
+        type: "windchimes",
+        title: "Windchimes",
+        description: "The acoustic resonance, harmonic structure, and kinetic physics of windchimes.",
+        image: "/windchime.png",
+        sections: [
+            {
+                paragraph: "The staff of Hermes features two intertwined serpents and wings, originally symbolizing heraldry, commerce, and negotiation.",
+                image: "/caduceus.jpg"
+            },
+            {
+                paragraph: "Confusion arose in the early 20th century when the U.S. Army Medical Corps mistakenly adopted the Caduceus instead of the true medical emblem.",
+                image: "/caduceus.jpg"
+            },
+            {
+                paragraph: "The authentic symbol of medicine is the Rod of Asclepius - a single snake wrapped around a rough wooden staff.",
+                image: "/caduceus.jpg"
+            },
+            {
+                paragraph: "Despite historical corrections by historians, the Caduceus remains deeply entrenched in commercial medical branding worldwide.",
+                image: "/caduceus.jpg"
+            }
+        ]
+    },
 ];
 
 export default function DailyLearningPage() {
     const [activeCard, setActiveCard] = useState<CardType>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ["start start", "end start"],
+    });
+
+    const bannerOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
     const activeCardConfig = cardsConfig.find(c => c.type === activeCard);
 
     return (
-        <div className="min-h-screen w-full flex flex-col">
-            {/* Hero Section */}
-            <div className="relative w-full h-64 md:h-180 overflow-hidden shadow-lg">
-                <Image src="/banner.jpg" alt="Banner" fill priority className="object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6 md:p-10">
-                    <h1 className="text-3xl md:text-5xl font-bold tracking-tight">Down the Burrow</h1>
-                    <p className="text-zinc-200 mt-2 max-w-2xl text-base md:text-lg">Where a simple question turns into a 3 AM obsession</p>
+        <main ref={containerRef} className="relative min-h-screen w-full flex flex-col bg-background font-sans antialiased">
+            {/* Sticky Hero Banner Container */}
+            <div className="relative w-full h-[60vh] md:h-[80vh]">
+                <div className="sticky top-0 w-full h-[60vh] md:h-[80vh] overflow-hidden pointer-events-none">
+                    <motion.div
+                        style={{ opacity: bannerOpacity }}
+                        className="relative w-full h-full pointer-events-auto"
+                    >
+                        <Image src="/banner.jpg" alt="Banner" fill priority className="object-cover" />
+
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-black/50 to-transparent flex flex-col justify-end p-6 pb-12 md:p-16 md:pb-20 z-20">
+                            <span className="text-xs md:text-sm font-mono uppercase tracking-[0.25em] text-muted-foreground/80 mb-2">
+                                Curated Research & Archive
+                            </span>
+
+                            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-foreground via-foreground/90 to-foreground/60 leading-[1.05] py-2">
+                                Down the Burrow
+                            </h1>
+                        </div>
+                    </motion.div>
+
+                    <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-b from-transparent to-background pointer-events-none z-10" />
                 </div>
             </div>
 
-            {/* Masonry Column Grid */}
-            <div className="w-full px-4 md:px-8 py-8">
-                <div className="columns-1 md:columns-3 gap-6 w-full space-y-6">
+            {/* Content Layer (Cards Grid Container) */}
+            <div className="relative z-20 w-full px-4 md:px-10 py-12 bg-background -mt-16">
+                {/* Subtitle Header */}
+                <div className="max-w-[110rem] mx-auto mb-16 text-center flex flex-col items-center">
+                    <div className="w-12 h-[1px] bg-border mb-6" />
+                    <p className="text-foreground/90 text-lg md:text-2xl font-medium tracking-tight max-w-2xl leading-relaxed">
+                        Where a simple question turns into a <span className="font-semibold text-foreground">3 AM obsession</span>
+                    </p>
+                    <div className="w-12 h-[1px] bg-border mt-6" />
+                </div>
+
+                {/* Ultra-wide Cards Grid */}
+                <div className="columns-1 sm:columns-2 lg:columns-3 gap-8 w-full max-w-[110rem] mx-auto space-y-8">
                     {cardsConfig.map((card) => (
                         <div
                             key={card.type}
                             onClick={() => setActiveCard(card.type)}
-                            className="bg-card border shadow-sm cursor-pointer hover:border-primary/50 transition-all hover:shadow-md overflow-hidden flex flex-col break-inside-avoid"
+                            className="bg-card border border-border/60 shadow-sm hover:shadow-2xl cursor-pointer hover:border-primary/60 transition-all duration-300 overflow-hidden flex flex-col break-inside-avoid rounded-none group"
                         >
-                            <Image
-                                src={card.image}
-                                alt={card.title}
-                                width={600}
-                                height={450}
-                                className="w-full h-auto object-cover"
-                            />
+                            <div className="w-full relative overflow-hidden">
+                                <Image
+                                    src={card.image}
+                                    alt={card.title}
+                                    width={1200}
+                                    height={900}
+                                    className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                                />
+                            </div>
+
+                            <div className="p-6 flex flex-col justify-between bg-card">
+                                <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors tracking-tight">
+                                    {card.title}
+                                </h3>
+                                <p className="text-sm text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
+                                    {card.description}
+                                </p>
+                            </div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Interactive Expanding Overlay Component */}
+            {/* Footer Component */}
+            <footer className="relative z-20 w-full border-t border-border/60 bg-background py-12 px-6 md:px-16 mt-16">
+                <div className="max-w-[110rem] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="flex flex-col items-center md:items-start">
+                        <span className="text-base font-bold tracking-tight text-foreground">
+                            Down the Burrow
+                        </span>
+                        <p className="text-xs text-muted-foreground font-mono mt-1">
+                            An ongoing archive of curious deep dives & late-night rabbit holes.
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-6 text-xs text-muted-foreground font-mono">
+                        <button
+                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                            className="hover:text-foreground transition-colors cursor-pointer"
+                        >
+                            ↑ Back to Top
+                        </button>
+                    </div>
+                </div>
+            </footer>
+
+            {/* Render DeepDiveOverlay directly */}
             {activeCard && activeCardConfig && (
                 <DeepDiveOverlay
                     card={activeCardConfig}
@@ -142,6 +257,6 @@ export default function DailyLearningPage() {
                     onClose={() => setActiveCard(null)}
                 />
             )}
-        </div>
+        </main>
     );
 }
