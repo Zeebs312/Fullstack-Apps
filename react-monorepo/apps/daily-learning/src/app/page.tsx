@@ -108,7 +108,7 @@ export default function DailyLearningPage() {
             <div className="relative w-full h-64 md:h-180 overflow-hidden shadow-lg">
                 <Image src="/banner.jpg" alt="Banner" fill priority className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-6 md:p-10">
-                    <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight">Down the Burrow</h1>
+                    <h1 className="text-3xl md:text-5xl font-bold tracking-tight">Down the Burrow</h1>
                     <p className="text-zinc-200 mt-2 max-w-2xl text-base md:text-lg">Where a simple question turns into a 3 AM obsession</p>
                 </div>
             </div>
