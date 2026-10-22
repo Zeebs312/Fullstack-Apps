@@ -1,10 +1,12 @@
 ﻿"use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { LearningEntry, LearningEntrySchema } from '@repo/shared-types';
 import Image from "next/image";
 import DeepDiveOverlay, { CardConfig } from "@/components/DeepDiveView";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { useTheme } from "next-themes";
+import { Sun, Moon } from "lucide-react";
 
 const initialEntries: LearningEntry[] = [
     {
@@ -149,6 +151,13 @@ const cardsConfig: CardConfig[] = [
 export default function DailyLearningPage() {
     const [activeCard, setActiveCard] = useState<CardType>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const { theme, setTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    // Prevent hydration mismatch for client-side theme
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -160,6 +169,23 @@ export default function DailyLearningPage() {
 
     return (
         <main ref={containerRef} className="relative min-h-screen w-full flex flex-col bg-background font-sans antialiased">
+            {/* Top Navigation Bar with Theme Toggle */}
+            <div className="fixed top-6 right-6 z-50">
+                {mounted && (
+                    <button
+                        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                        aria-label="Toggle theme"
+                        className="p-3 bg-background/80 backdrop-blur-md border border-border/60 text-foreground hover:border-primary/60 transition-all duration-300 shadow-md cursor-pointer flex items-center justify-center rounded-none"
+                    >
+                        {theme === "dark" ? (
+                            <Sun className="w-5 h-5 transition-transform duration-300 rotate-0 hover:rotate-45" />
+                        ) : (
+                            <Moon className="w-5 h-5 transition-transform duration-300 rotate-0 hover:-rotate-12" />
+                        )}
+                    </button>
+                )}
+            </div>
+
             {/* Sticky Hero Banner Container */}
             <div className="relative w-full h-[60vh] md:h-[80vh]">
                 <div className="sticky top-0 w-full h-[60vh] md:h-[80vh] overflow-hidden pointer-events-none">
@@ -239,6 +265,15 @@ export default function DailyLearningPage() {
                     </div>
 
                     <div className="flex items-center gap-6 text-xs text-muted-foreground font-mono">
+                        {mounted && (
+                            <button
+                                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                                className="hover:text-foreground transition-colors cursor-pointer flex items-center gap-2"
+                            >
+                                {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                                Switch to {theme === "dark" ? "Light" : "Dark"} Mode
+                            </button>
+                        )}
                         <button
                             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                             className="hover:text-foreground transition-colors cursor-pointer"

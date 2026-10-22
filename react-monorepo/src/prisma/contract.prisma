@@ -1,0 +1,10 @@
+// use prisma-8
+
+model LearningEntry {
+  id            String   @id @default(uuid())
+  title         String
+  category      String
+  content       String
+  datePublished String
+  createdAt     DateTime @default(now())
+}
