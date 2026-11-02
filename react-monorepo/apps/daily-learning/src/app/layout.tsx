@@ -24,8 +24,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        // suppressHydrationWarning is required by next-themes to prevent hydration mismatches on the html element
         <html lang="en" suppressHydrationWarning>
+            {/* suppressHydrationWarning is required by next-themes to prevent hydration mismatches */}
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >

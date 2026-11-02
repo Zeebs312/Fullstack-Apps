@@ -9,9 +9,12 @@ generator client {
 
 model LearningEntry {
   id            String   @id @default(uuid())
+  slug          String   @unique
   title         String
   category      String
   content       String
+  imageUrls     String[]
+  descriptions  String[]
   datePublished String
   createdAt     DateTime @default(now())
 }
