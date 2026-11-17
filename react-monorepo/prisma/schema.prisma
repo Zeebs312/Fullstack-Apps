@@ -16,5 +16,6 @@ model LearningEntry {
   imageUrls     String[]
   descriptions  String[]
   datePublished String
+  resources     Json?    @default("[]")
   createdAt     DateTime @default(now())
 }

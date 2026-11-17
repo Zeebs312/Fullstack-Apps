@@ -1,12 +1,22 @@
 import { z } from 'zod';
 
-// --- Daily Learning App Types & Schemas ---
+// --- Daily Learning / Down the Burrow App Types & Schemas ---
+export const ResourceLinkSchema = z.object({
+    title: z.string(),
+    url: z.string().url(),
+    type: z.enum(['article', 'paper', 'tool', 'repo']).default('article'),
+    note: z.string().optional(),
+});
+
+export type ResourceLink = z.infer<typeof ResourceLinkSchema>;
+
 export const LearningEntrySchema = z.object({
     id: z.string(),
     title: z.string(),
     category: z.string(),
     content: z.string(),
     datePublished: z.string(),
+    resources: z.array(ResourceLinkSchema).optional().default([]),
 });
 
 export type LearningEntry = z.infer<typeof LearningEntrySchema>;
