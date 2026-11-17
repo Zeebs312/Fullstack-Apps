@@ -158,8 +158,8 @@ export default function DTBClient({ dbEntries }: DTBClientProps) {
                             key={year}
                             onClick={() => setSelectedYear(year)}
                             className={`px-6 py-2.5 text-xs md:text-sm font-mono uppercase tracking-widest transition-all duration-300 cursor-pointer rounded-none border ${selectedYear === year
-                                    ? "bg-[#a995c9] text-black border-[#a995c9] shadow-md font-bold"
-                                    : "bg-card/50 text-muted-foreground border-border/60 hover:border-[#a995c9]/60 hover:text-foreground"
+                                ? "bg-[#a995c9] text-black border-[#a995c9] shadow-md font-bold"
+                                : "bg-card/50 text-muted-foreground border-border/60 hover:border-[#a995c9]/60 hover:text-foreground"
                                 }`}
                         >
                             {year}
@@ -186,7 +186,7 @@ export default function DTBClient({ dbEntries }: DTBClientProps) {
                                     width={1200}
                                     height={800}
                                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                    className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-500 ease-out"
+                                    className="w-full h-auto object-contain"
                                 />
                             </motion.div>
                         </div>
